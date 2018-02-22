@@ -1,0 +1,61 @@
+<template>
+  <div id="app">
+    <div class="header">
+      <ul v-scroll-spy="{ activeClass: 'active' }">
+        <li><a href="#section-1">Section 1</a></li>
+        <li><a href="#section-2">Section 2</a></li>
+        <li><a href="#section-3">Section 3</a></li>
+        <li><a href="#section-4">Section 4</a></li>
+      </ul>
+    </div>
+
+    <div class="main">
+      <div id="#section-1" class="section">
+          <h1>Section 1</h1>
+      </div>
+
+      <div id="#section-2" class="section">
+          <h1>Section 2</h1>
+      </div>
+
+      <div id="#section-3" class="section">
+          <h1>Section 3</h1>
+      </div>
+
+      <div id="#section-4" class="section">
+        <h1>Section 4</h1>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: 'app'
+}
+</script>
+
+<style>
+.header {
+  width: 150px;
+  float: left;
+  position: fixed;
+}
+.main {
+  float: left;
+  margin-left: 250px;
+}
+
+.section {
+  height: 700px;
+}
+
+a {
+  text-decoration: none;
+}
+
+a.active {
+  text-decoration: underline;
+}
+
+</style>
