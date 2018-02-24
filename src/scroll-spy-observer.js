@@ -1,10 +1,10 @@
-import scrollSpyObserverUtil from './scroll-spy-observer'
-import scrollSpyUtil from './scroll-spy-util'
+import SpyObserver from './scroll-spy-observer'
 import _ from 'lodash'
 
 export default {
   observers: {},
   reports: [],
+  callback: null,
 
   observerOptions: {
     root: null,
@@ -12,31 +12,33 @@ export default {
     threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
   },
 
-  init: () => {
-    _.forIn(scrollSpyObserverUtil.observers, (value, key) => {
-      scrollSpyObserverUtil.observers[key].disconnect()
+  init: (cb) => {
+    SpyObserver.callback = cb
+    _.forIn(SpyObserver.observers, (value, key) => {
+      SpyObserver.observers[key].disconnect()
     })
-    scrollSpyObserverUtil.observers = {}
-    scrollSpyObserverUtil.reports = []
+    SpyObserver.observers = {}
+    SpyObserver.reports = []
   },
 
   intersectionCallback (entries) {
     for (var i = 0; i < entries.length; i++) { 
-      let index = _.findIndex(scrollSpyObserverUtil.reports, (item) => {
+      let index = _.findIndex(SpyObserver.reports, (item) => {
         return item.target === entries[i].target.id
       })
-      scrollSpyObserverUtil.reports[index].ratio = entries[i].intersectionRatio
+      SpyObserver.reports[index].ratio = entries[i].intersectionRatio
     }
-    let bestContent = scrollSpyObserverUtil.getBestContent()
+    let bestContent = SpyObserver.getBestContent()
 
     if (bestContent) {
-      scrollSpyUtil.changeHash(bestContent.target)
+      debugger
+      SpyObserver.callback(bestContent.target)
     }
   },
 
   getBestContent () {
-    let lastItem = scrollSpyObserverUtil.reports[scrollSpyObserverUtil.reports.length - 1]
-    let visibleContents = _.filter(scrollSpyObserverUtil.reports, (item) => {
+    let lastItem = SpyObserver.reports[SpyObserver.reports.length - 1]
+    let visibleContents = _.filter(SpyObserver.reports, (item) => {
       return item.ratio > 0
     })
     let bestContent = null

@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import ScrollSpy from '../dist/vue-scroll-spy'
+import ScrollSpy from '../../src'
 import demo from './demo.vue'
 
 Vue.use(ScrollSpy)

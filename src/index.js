@@ -1,15 +1,15 @@
-import ScrollSpy from './scroll-spy.js';
+import ScrollSpy from './scroll-spy'
 
-const Plugin = {};
+const Plugin = {}
 
 Plugin.install = (Vue) => {
-  if (Plugin.install.installed) return;
+  if (Plugin.install.installed) return
 
-  Vue.directive('scroll-spy', ScrollSpy);
-};
-
-if (typeof window !== 'undefined' && window.Vue) {
-  Plugin.install(window.Vue);
+  Vue.directive('scroll-spy', ScrollSpy)
 }
 
-export default Plugin;
+if (typeof window !== 'undefined' && window.Vue) {
+  Plugin.install(window.Vue)
+}
+
+export default Plugin

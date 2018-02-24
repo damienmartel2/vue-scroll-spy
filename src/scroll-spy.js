@@ -1,13 +1,12 @@
-import scrollSpyUtil from './scroll-spy-util'
-import scrollSpyObserverUtil from './scroll-spy-observer'
+import SpyCore from './scroll-spy-core'
 
 export default {
   inserted: (el, binding, vnode, oldVnode) => {
-    scrollSpyUtil.init(el, binding)
-    scrollSpyUtil.initHashListener(el, binding)
-    scrollSpyUtil.activateCurrentHash(true)
+    SpyCore.init(el, binding)
+    SpyCore.initHashListener(el, binding)
+    SpyCore.activateCurrentHash(true)
   },
   unbind: (el, binding, vnode, oldVnode) => {
-    scrollSpyUtil.removeHashListener(el, binding)
+    SpyCore.removeHashListener(el, binding)
   }
 }

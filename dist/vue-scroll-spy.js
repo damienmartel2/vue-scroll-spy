@@ -81,8 +81,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scroll_spy_util__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(2);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
 
@@ -90,8 +90,114 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /* harmony default export */ __webpack_exports__["a"] = ({
+  links: [],
+  scrollTo: true,
+  activeClass: 'active',
+
+  init: function init(el, binding) {
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].links = [];
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].initLinks(el, binding);
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].initObserver(el, binding);
+  },
+
+  initLinks: function initLinks(el, binding) {
+    var links = el.querySelectorAll('a');
+    for (var i = 0; i < links.length; i++) {
+      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].links.push({
+        element: links[i],
+        target: links[i].hash
+      });
+    }
+    if (binding.activeClass) {
+      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].activeClass = binding.activeClass;
+    }
+  },
+
+  initObserver: function initObserver(el, binding) {
+    __WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__["a" /* default */].init(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].changeHash);
+    var links = __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].links;
+    for (var i = 0; i < links.length; i++) {
+      var targetElement = document.querySelector('[id="' + links[i].target + '"]');
+      var observer = new IntersectionObserver(__WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__["a" /* default */].intersectionCallback, __WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__["a" /* default */].observerOptions);
+      __WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__["a" /* default */].add(links[i].target, observer);
+      observer.observe(targetElement);
+    }
+  },
+
+
+  initHashListener: function initHashListener(el, binding) {
+    window.addEventListener('hashchange', function (event) {
+      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].onHash(el, binding, event);
+    });
+  },
+
+  removeHashListener: function removeHashListener(el, binding) {
+    window.removeEventListener('hashchange', function (event) {
+      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].onHash(el, binding, event);
+    });
+  },
+
+  onHash: function onHash(el, binding, event) {
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].activateCurrentHash(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].scrollTo);
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].scrollTo = true;
+  },
+
+  changeHash: function changeHash(target) {
+    if (location.hash !== target) {
+      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].scrollTo = false;
+      if (window.location.hash) {
+        window.location.hash = target;
+      } else if (window.history.pushState) {
+        window.history.pushState('', '', target);
+      }
+    }
+  },
+  activateCurrentHash: function activateCurrentHash(scrollTo) {
+    var parts = window.location.hash.split('#');
+    var link = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].links, function (item) {
+      return item.target.replace('#', '') === parts[parts.length - 1];
+    });
+    if (!link) {
+      link = __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].links[0];
+      scrollTo = false;
+    }
+    if (scrollTo) {
+      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].activateTarget(link);
+    } else {
+      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].activateLink(link);
+    }
+  },
+  activateLink: function activateLink(link) {
+    var links = __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].links;
+    for (var i = 0; i < links.length; i++) {
+      links[i].element.classList.remove(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].activeClass);
+    }
+    link.element.classList.add(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].activeClass);
+  },
+  activateTarget: function activateTarget(link) {
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].activateLink(link);
+    var target = document.querySelector('[id="' + link.target + '"]');
+    if (target) {
+      target.scrollIntoView(true);
+    }
+  }
+});
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+
+
+
+/* harmony default export */ __webpack_exports__["a"] = ({
   observers: {},
   reports: [],
+  callback: null,
 
   observerOptions: {
     root: null,
@@ -99,8 +205,9 @@ return /******/ (function(modules) { // webpackBootstrap
     threshold: [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
   },
 
-  init: function init() {
-    __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.forIn(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].observers, function (value, key) {
+  init: function init(cb) {
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].callback = cb;
+    __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.forIn(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].observers, function (value, key) {
       __WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].observers[key].disconnect();
     });
     __WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].observers = {};
@@ -109,7 +216,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
   intersectionCallback: function intersectionCallback(entries) {
     for (var i = 0; i < entries.length; i++) {
-      var index = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.findIndex(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].reports, function (item) {
+      var index = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.findIndex(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].reports, function (item) {
         return item.target === entries[i].target.id;
       });
       __WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].reports[index].ratio = entries[i].intersectionRatio;
@@ -117,12 +224,13 @@ return /******/ (function(modules) { // webpackBootstrap
     var bestContent = __WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].getBestContent();
 
     if (bestContent) {
-      __WEBPACK_IMPORTED_MODULE_1__scroll_spy_util__["a" /* default */].changeHash(bestContent.target);
+      debugger;
+      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].callback(bestContent.target);
     }
   },
   getBestContent: function getBestContent() {
     var lastItem = __WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].reports[__WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].reports.length - 1];
-    var visibleContents = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].reports, function (item) {
+    var visibleContents = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_observer__["a" /* default */].reports, function (item) {
       return item.ratio > 0;
     });
     var bestContent = null;
@@ -166,112 +274,6 @@ return /******/ (function(modules) { // webpackBootstrap
       }
     }
     return;
-  }
-});
-
-/***/ }),
-/* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
-
-
-
-
-/* harmony default export */ __webpack_exports__["a"] = ({
-  links: [],
-  scrollTo: true,
-  activeClass: 'active',
-
-  init: function init(el, binding) {
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].links = [];
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].initLinks(el, binding);
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].initObserver(el, binding);
-  },
-
-  initLinks: function initLinks(el, binding) {
-    var links = el.querySelectorAll('a');
-    for (var i = 0; i < links.length; i++) {
-      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].links.push({
-        element: links[i],
-        target: links[i].hash
-      });
-    }
-    if (binding.activeClass) {
-      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].activeClass = binding.activeClass;
-    }
-  },
-
-  initObserver: function initObserver(el, binding) {
-    var links = __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].links;
-    for (var i = 0; i < links.length; i++) {
-      var targetElement = document.querySelector('[id="' + links[i].target + '"]');
-      var observer = new IntersectionObserver(__WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__["a" /* default */].intersectionCallback, __WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__["a" /* default */].observerOptions);
-      __WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__["a" /* default */].add(links[i].target, observer);
-      observer.observe(targetElement);
-    }
-  },
-
-
-  initHashListener: function initHashListener(el, binding) {
-    window.addEventListener('hashchange', function (event) {
-      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].onHash(el, binding, event);
-    });
-  },
-
-  removeHashListener: function removeHashListener(el, binding) {
-    window.removeEventListener('hashchange', function (event) {
-      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].onHash(el, binding, event);
-    });
-  },
-
-  onHash: function onHash(el, binding, event) {
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].activateCurrentHash(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].scrollTo);
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].scrollTo = true;
-  },
-
-  changeHash: function changeHash(target) {
-    if (location.hash !== target) {
-      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].scrollTo = false;
-      if (window.location.hash) {
-        window.location.hash = target;
-      } else if (window.history.pushState) {
-        window.history.pushState('', '', target);
-      }
-    }
-  },
-  activateCurrentHash: function activateCurrentHash(scrollTo) {
-    var parts = window.location.hash.split('#');
-    var link = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].links, function (item) {
-      return item.target.replace('#', '') === parts[parts.length - 1];
-    });
-    if (!link) {
-      link = __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].links[0];
-      scrollTo = false;
-    }
-    if (scrollTo) {
-      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].activateTarget(link);
-    } else {
-      __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].activateLink(link);
-    }
-  },
-  activateLink: function activateLink(link) {
-    var links = __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].links;
-    for (var i = 0; i < links.length; i++) {
-      links[i].element.classList.remove(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].activeClass);
-    }
-    link.element.classList.add(__WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].activeClass);
-  },
-  activateTarget: function activateTarget(link) {
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].activateLink(link);
-    var target = document.querySelector('[id="' + link.target + '"]');
-    if (target) {
-      target.scrollIntoView(true);
-    }
   }
 });
 
@@ -17385,19 +17387,17 @@ return /******/ (function(modules) { // webpackBootstrap
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__scroll_spy_observer__ = __webpack_require__(0);
-
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__ = __webpack_require__(0);
 
 
 /* harmony default export */ __webpack_exports__["a"] = ({
   inserted: function inserted(el, binding, vnode, oldVnode) {
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].init(el, binding);
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].initHashListener(el, binding);
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].activateCurrentHash(true);
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].init(el, binding);
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].initHashListener(el, binding);
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].activateCurrentHash(true);
   },
   unbind: function unbind(el, binding, vnode, oldVnode) {
-    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_util__["a" /* default */].removeHashListener(el, binding);
+    __WEBPACK_IMPORTED_MODULE_0__scroll_spy_core__["a" /* default */].removeHashListener(el, binding);
   }
 });
 
@@ -17407,7 +17407,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__scroll_spy_js__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__scroll_spy__ = __webpack_require__(3);
 
 
 var Plugin = {};
@@ -17415,7 +17415,7 @@ var Plugin = {};
 Plugin.install = function (Vue) {
   if (Plugin.install.installed) return;
 
-  Vue.directive('scroll-spy', __WEBPACK_IMPORTED_MODULE_0__scroll_spy_js__["a" /* default */]);
+  Vue.directive('scroll-spy', __WEBPACK_IMPORTED_MODULE_0__scroll_spy__["a" /* default */]);
 };
 
 if (typeof window !== 'undefined' && window.Vue) {
